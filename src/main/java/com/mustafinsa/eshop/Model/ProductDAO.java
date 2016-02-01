@@ -2,20 +2,15 @@ package com.mustafinsa.eshop.Model;
 
 import java.util.List;
 
-public interface ProductDAO {
+public interface ProductDao {
 
-    //Create
     void save(Product product);
 
-    //Read
-    Product getById(int id);
+    Product getProduct(int id);
 
-    //Update
-    void update(Product product);
+    boolean update(Product product);
 
-    //Delete
-    void deleteById(int id);
+    boolean delete(int id);
 
-    //Get All
-    List<Product> getAll();
+    List<Product> getProducts();
 }

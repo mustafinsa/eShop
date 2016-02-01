@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAllController extends HttpServlet {
-    ProductDAO productDao = new ProductDAOSpringJdbcImpl(ConnectorDB.getDataSource());
+    ProductDao productDao = new ProductDaoImpl(ConnectorDB.getDataSource());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Product> productList = new ArrayList<>();
 
-        productList = productDao.getAll();
+        productList = productDao.getProducts();
 
         req.setAttribute("productList", productList);
         req.getRequestDispatcher("/catalog.jsp").forward(req, resp);

@@ -1,7 +1,6 @@
 package com.mustafinsa.eshop.Controller;
 
 import com.mustafinsa.eshop.Model.*;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ItemCartController extends HttpServlet {
-    ProductDAO productDao = new ProductDAOSpringJdbcImpl(ConnectorDB.getDataSource());
+    ProductDao productDao = new ProductDaoImpl(ConnectorDB.getDataSource());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -37,7 +36,7 @@ public class ItemCartController extends HttpServlet {
             } else {
                 shoppingCart.put(itemId, 1);
             }
-        } else if ("delete".equals(action)){
+        } else if ("delete".equals(action)) {
             int itemId = Integer.parseInt(req.getParameter("deleteId"));
 
             if (shoppingCart.get(itemId) > 1) {
@@ -50,13 +49,11 @@ public class ItemCartController extends HttpServlet {
 
         Map<Product, Integer> productMap = new LinkedHashMap<>();
         for (Map.Entry<Integer, Integer> item : shoppingCart.entrySet()) {
-            productMap.put(productDao.getById(item.getKey()), item.getValue());
+            productMap.put(productDao.getProduct(item.getKey()), item.getValue());
         }
 
         req.setAttribute("productMap", productMap);
 
         req.getRequestDispatcher("cart.jsp").forward(req, resp);
-
-
     }
 }

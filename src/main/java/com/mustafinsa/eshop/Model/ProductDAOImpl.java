@@ -8,11 +8,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDAOImpl implements ProductDAO {
+public class ProductDaoImpl implements ProductDao {
 
     DataSource dataSource;
 
-    public ProductDAOImpl(DataSource dataSource) {
+    public ProductDaoImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -45,16 +45,14 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
-    public Product getById(int id) {
+    public Product getProduct(int id) {
         String selectByIdQuery = "SELECT id, name, price, quantity FROM Products WHERE id = ?";
 
         ResultSet rs = null;
         Product product = null;
         try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(selectByIdQuery)) {
-
             ps.setInt(1, id);
-
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -63,11 +61,7 @@ public class ProductDAOImpl implements ProductDAO {
                 product.setName(rs.getString("name"));
                 product.setPrice(rs.getInt("price"));
                 product.setQuantity(rs.getInt("quantity"));
-                System.out.println("Product found :: " + product);
-            } else {
-                System.out.println("Product don't found");
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -83,65 +77,51 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
-    public void update(Product product) {
+    public boolean update(Product product) {
         String updateQuery = "UPDATE Products SET name=?, price=?, quantity=? WHERE id=?";
 
+        int out = 0;
         try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(updateQuery)) {
-
 
             ps.setString(1, product.getName());
             ps.setInt(2, product.getPrice());
             ps.setInt(3, product.getQuantity());
             ps.setInt(4, product.getId());
 
-            int out = ps.executeUpdate();
-
-            if (out != 0) {
-                System.out.println("Product updates with id " /*+ product.getId()*/);
-            } else {
-                System.out.println("Product update failed with id"/* + product.getId()*/);
-            }
-
+            out = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return out != 0;
     }
 
     @Override
-    public void deleteById(int id) {
+    public boolean delete(int id) {
         String insertQuery = "DELETE  FROM Products WHERE id=?";
 
+        int out = 0;
         try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(insertQuery)) {
 
             ps.setInt(1, id);
-
-            int out = ps.executeUpdate();
-
-            if (out != 0) {
-                System.out.println("Product deleted with id " + id);
-            } else {
-                System.out.println("Product deleted failed with id" + id);
-            }
-
+            out = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return out != 0;
     }
 
     @Override
-    public List<Product> getAll() {
-        String query = "select id, name, price, quantity from Products";
+    public List<Product> getProducts() {
+        String query = "SELECT id, name, price, quantity FROM Products";
         List<Product> productList = new ArrayList<>();
-        Connection con = null;
-        PreparedStatement ps = null;
+
         ResultSet rs = null;
-        try{
-            con = dataSource.getConnection();
-            ps = con.prepareStatement(query);
+        try (Connection con = dataSource.getConnection(); PreparedStatement ps = con.prepareStatement(query);) {
+
             rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Product product = new Product();
                 product.setId(rs.getInt("id"));
                 product.setName(rs.getString("name"));
@@ -149,18 +129,12 @@ public class ProductDAOImpl implements ProductDAO {
                 product.setQuantity(rs.getInt("quantity"));
                 productList.add(product);
             }
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
-        }finally{
+        } finally {
             try {
                 if (rs != null) {
                     rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (con != null) {
-                    con.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
